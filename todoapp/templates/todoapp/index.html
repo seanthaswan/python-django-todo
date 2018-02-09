@@ -1,6 +1,70 @@
 {% extends 'todoapp/base.html' %}
 
 {% block content%}
-<h1>Home Page</h1>
+<h1>
+  {% if user.is_authenticated %}
+   {{user.first_name}}'s Todo List
+  {% else %}
+    Hello Anon Todo List User!
+  {% endif %} 
+</h1>
 
+{% if quote %}
+  <h2>Fun Quote Time!</h2>
+  <em>{% autoescape off %} {{ quote.content }} {% endautoescape %}</em> - {{ quote.title }}
+{% endif %}
+
+
+{% if error %}
+  <div class="alert alert-warning">
+    <strong>Error!</strong> {{error}}
+  </div>
+{% endif %}
+
+<div class="row">
+  <div class="col-xs-6 col-xs-offset-3">
+    <form action="/" method="POST">
+      {% csrf_token %}
+      <select name="userid" class="form-control">
+        {% for u in users %}
+          <option value="{{ u.id}}">
+            {{ u.username }}
+          </option>
+        {% endfor %}
+      </select>
+      <input type="text" name="text" placeholder="What you gotta do?" class="form-control">
+      <input type="submit" value="Add Todo" class="btn btn-info">
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12 col-md-6 col-md-offset-3">
+    <h2>Victory List!</h2>
+    <table class="table table-striped">
+      <tr>
+          <th>Item</th>
+          <th>Name</th>
+          <th>Done?</th>
+          <th>Remove?</th>
+      </tr>
+      {% for t in todos %}
+        <tr>
+          <td>{{ t.text }}</td>
+          <td>{{ t.user }}</td>
+          <td>
+            {% if t.is_complete %}
+            <i class="glyphicon glyphicon-ok">
+            {% else %}
+            <a href="{{t.id}}/done/">Mark Done</a>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{t.id}}/delete/">Remove</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
 {% endblock %}
